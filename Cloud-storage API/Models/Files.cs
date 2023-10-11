@@ -11,7 +11,7 @@ namespace Cloud_storage_API.Models
         public string Name { get; set; }
         [MaxLength(255)]
         public string Type { get; set; }
-        public int Size { get; set; }
+        public long Size { get; set; }
         [DefaultValue(true)]
         public bool Private { get; set; }
         [MaxLength(255)]

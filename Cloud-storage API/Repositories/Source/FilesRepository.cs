@@ -1,6 +1,7 @@
 ﻿using Cloud_storage_API.Db;
 using Cloud_storage_API.Models;
 using Cloud_storage_API.Repositories.Interface;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cloud_storage_API.Repositories.Source
@@ -29,6 +30,23 @@ namespace Cloud_storage_API.Repositories.Source
         public async Task<IEnumerable<Files>> FindByUserIdAsync(int id)
         {
             return await _db.Files.Where(x => x.UserId == id).ToListAsync();
+        }
+
+        public async Task<int> GetLastIdAsync()
+        {
+            return await _db.Files.OrderByDescending(f => f.Id).Select(f => f.Id).FirstOrDefaultAsync(); 
+        }
+
+        public async Task<Files> SetStarredAsync(int id, bool state)
+        {
+            var file = await _db.Files.SingleAsync(x => x.Id == id);
+            if (file != null)
+            {
+                file.Starred = state;
+                await _db.SaveChangesAsync();
+                return file;
+            }
+            return null;
         }
     }
 }

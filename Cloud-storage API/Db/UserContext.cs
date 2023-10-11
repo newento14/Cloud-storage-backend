@@ -10,7 +10,7 @@ namespace Cloud_storage_API.Db
         public UserContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Users> Users { get; set; }
-        public DbSet<Files> Files { get; set; }
+        public DbSet<Models.Files> Files { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -9,5 +9,6 @@ namespace Cloud_storage_API.Repositories.Interface
         Task<IEnumerable<Users>> GetAllAsync();
         Task<Users> GetByIdAsync(int id);
         Task<Users> GetByEmailAsync(string email);
+        Task<Users> UpdateStorageUsed(Users user, long size);
     }
 }

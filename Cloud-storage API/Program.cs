@@ -4,6 +4,7 @@ using Cloud_storage_API.Models;
 using Cloud_storage_API.Repositories.Interface;
 using Cloud_storage_API.Repositories.Source;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +51,10 @@ namespace Cloud_storage_API
             builder.Services.AddScoped<IFilesRepository, FilesRepository>();
             builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 
+            builder.Services.Configure<FormOptions>(x =>
+            {
+                x.MultipartBodyLengthLimit = 10737418240;
+            });
 
             var app = builder.Build();
 

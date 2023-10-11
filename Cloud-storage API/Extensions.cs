@@ -11,8 +11,6 @@ namespace Cloud_storage_API
             {
                 Id = item.Id,
                 Email = item.Email,
-                Password = item.Password
-
             };
         }
     }

@@ -7,5 +7,7 @@ namespace Cloud_storage_API.Repositories.Interface
         Task<Files> AddFileAsync(Files file);
         Task<IEnumerable<Files>> FindByParentIdAsync(int parentId);
         Task<IEnumerable<Files>> FindByUserIdAsync(int id);
+        Task<int> GetLastIdAsync();
+        Task<Files> SetStarredAsync(int id, bool state);
     }
 }

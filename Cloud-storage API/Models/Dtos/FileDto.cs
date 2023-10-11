@@ -3,11 +3,12 @@ using System.ComponentModel;
 
 namespace Cloud_storage_API.Models.Dtos
 {
-    public class FilesDto
+    public class FileDto
     {
+        public int Id { get; set; } 
         public string Name { get; set; }
         public string Type { get; set; }
-        public int Size { get; set; }
+        public long Size { get; set; }
         public bool Private { get; set; }
         public Guid Link { get; set; }
         public string Date { get; set; }

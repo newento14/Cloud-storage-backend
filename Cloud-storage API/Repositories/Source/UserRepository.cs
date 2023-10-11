@@ -37,6 +37,12 @@ namespace Cloud_storage_API.Repositories.Source
             await _db.SaveChangesAsync();
             return user;
         }
-        
+
+        public async Task<Users> UpdateStorageUsed(Users user,long size)
+        {
+            user.StorageUsed = size;
+            await _db.SaveChangesAsync();
+            return user;
+        }
     }
 }
