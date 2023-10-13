@@ -28,7 +28,16 @@ namespace Cloud_storage_API.Repositories.Source
 
         public async Task<Users> GetByIdAsync(int id)
         {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            try
+            {
+                return await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            }
+            catch (Exception e)
+            {
+
+                return null;
+            }
+            
         }
 
         public async Task<Users> RegisterAsync(Users user)
@@ -40,7 +49,7 @@ namespace Cloud_storage_API.Repositories.Source
 
         public async Task<Users> UpdateStorageUsed(Users user,long size)
         {
-            user.StorageUsed = size;
+            user.StorageUsed += size;
             await _db.SaveChangesAsync();
             return user;
         }

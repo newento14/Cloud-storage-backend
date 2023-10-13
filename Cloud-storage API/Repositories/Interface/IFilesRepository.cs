@@ -9,5 +9,7 @@ namespace Cloud_storage_API.Repositories.Interface
         Task<IEnumerable<Files>> FindByUserIdAsync(int id);
         Task<int> GetLastIdAsync();
         Task<Files> SetStarredAsync(int id, bool state);
+        Task<Files> FindByIdAsync(int id);
+        void DeleteFile(Files file);
     }
 }

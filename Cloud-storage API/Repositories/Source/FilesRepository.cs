@@ -22,6 +22,17 @@ namespace Cloud_storage_API.Repositories.Source
             return file;
         }
 
+        public void DeleteFile(Files file)
+        {
+            _db.Files.Remove(file);
+            _db.SaveChanges();
+        }
+
+        public async Task<Files> FindByIdAsync(int id)
+        {
+            return await _db.Files.SingleAsync(x => x.Id == id);
+        }
+
         public async Task<IEnumerable<Files>> FindByParentIdAsync(int parentId)
         {
             return await _db.Files.Where(x => x.parrentId == parentId).ToListAsync();

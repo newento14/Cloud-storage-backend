@@ -3,6 +3,7 @@ using Cloud_storage_API.Models.Dtos;
 using Cloud_storage_API.Repositories.Interface;
 using Cloud_storage_API.Repositories.Source;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using System;
 using System.IO;
 using System.Xml.Linq;
@@ -36,7 +37,7 @@ namespace Cloud_storage_API.Controllers
                 parrentId = Convert.ToInt32(pathId[pathId.Length - 2]);
 
             var path = mainPath + request.PathName;
-            if (System.IO.File.Exists(path))
+            if (Directory.Exists(path))
                 return Conflict("folder with this name alredy exist");
 
             var token = HttpContext.Request.Headers["Authorization"].ToString();
@@ -71,7 +72,7 @@ namespace Cloud_storage_API.Controllers
                 Name = name,
                 Starred = file.Starred,
                 Link = file.Link,
-                Private = file.Private,
+                isPrivate = file.Private,
                 Size = file.Size,
                 Type = file.Type,
             };
@@ -95,7 +96,7 @@ namespace Cloud_storage_API.Controllers
             if (id == -1)
                 return NotFound();
 
-            IEnumerable<Models.Files> files;
+            IEnumerable<Files> files;
             if (parrentId == 0)
                 files = await _fileRepo.FindByUserIdAsync(id);
             else
@@ -117,7 +118,7 @@ namespace Cloud_storage_API.Controllers
                     Type = file.Type,
                     Link = file.Link,
                     Size = file.Size,
-                    Private = file.Private,
+                    isPrivate = file.Private,
                     Starred = file.Starred,
                 });
             }
@@ -150,11 +151,11 @@ namespace Cloud_storage_API.Controllers
             if (id == -1)
                 return NotFound();
 
-            if (request.storageUsed + request.file.Length > request.storageSize)
-                return BadRequest("Storage is full");
-
             if (request.file == null || request.file.Length == 0)
                 return BadRequest("File is empty");
+
+            if (request.storageUsed + request.file.Length > request.storageSize)
+                return BadRequest("Storage is full");
 
             try
             {
@@ -208,15 +209,95 @@ namespace Cloud_storage_API.Controllers
                     Type = dbFile.Type,
                     Link = dbFile.Link,
                     Size = dbFile.Size,
-                    Private = dbFile.Private,
+                    isPrivate = dbFile.Private,
                     Starred = dbFile.Starred,
                 };
 
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("download")]
+        public async Task<IActionResult> DownloadFile(string path)
+        {
+            if (path == "") 
+                return BadRequest();
+            try
+            {
+                var token = HttpContext.Request.Headers["Authorization"].ToString();
+                var id = _tokenRepository.ValidateToken(token.Split(' ')[1]);
+                if (id == -1)
+                    return NotFound();
+
+                var fullpath = Path.Combine(mainPath, id.ToString(), path);
+
+                var provider = new FileExtensionContentTypeProvider();
+                if (!provider.TryGetContentType(fullpath, out var contentType))
+                {
+                    contentType = "application/octet-stream";
+                }
+
+                var bytes = await System.IO.File.ReadAllBytesAsync(fullpath);
+                return File(bytes, contentType, Path.GetFileName(fullpath));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
+        }
+
+        [HttpDelete]
+        [Route("delete")]
+        public async Task<IActionResult> DeleteFile([FromQuery]string path, [FromQuery]int id)
+        {
+            var file = await _fileRepo.FindByIdAsync(id);
+            if (file == null) 
+                return NotFound();
+
+            if (path == "" || file.Type == "")
+                return BadRequest();
+
+            var token = HttpContext.Request.Headers["Authorization"].ToString();
+            var userId = _tokenRepository.ValidateToken(token.Split(' ')[1]);
+            if (userId == -1)
+                return NotFound();
+
+            var fullpath = Path.Combine(mainPath, userId.ToString(), path);
+            if (file.Type == "dir")
+            {
+                try
+                {
+                    Directory.Delete(fullpath, true);
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+                var user = await _userRepo.GetByIdAsync(userId);
+                await _userRepo.UpdateStorageUsed(user, file.Size);
+                _fileRepo.DeleteFile(file);
+                return Ok();
+            }
+            else
+            {
+                try
+                {
+                    System.IO.File.Delete(fullpath);
+                }
+                catch (Exception e) 
+                {
+                    return BadRequest(e.Message);
+                }
+                var user = await _userRepo.GetByIdAsync(userId);
+                await _userRepo.UpdateStorageUsed(user, file.Size * -1);
+                _fileRepo.DeleteFile(file);
+                return Ok();
             }
         }
 
