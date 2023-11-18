@@ -40,7 +40,7 @@ namespace Cloud_storage_API.Repositories.Source
 
         public async Task<IEnumerable<Files>> FindByUserIdAsync(int id)
         {
-            return await _db.Files.Where(x => x.UserId == id).ToListAsync();
+            return await _db.Files.Where(x => x.UserId == id && x.parrentId == 0).ToListAsync();
         }
 
         public async Task<int> GetLastIdAsync()

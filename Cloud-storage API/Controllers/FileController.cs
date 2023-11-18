@@ -14,7 +14,7 @@ namespace Cloud_storage_API.Controllers
     [Route("api/files")]
     public class FileController : Controller
     {
-        private const string mainPath = "D:\\storage\\";
+        private string mainPath = Directory.GetCurrentDirectory() + "\\files\\";
         private readonly IFilesRepository _fileRepo;
         private readonly IUserRepository _userRepo;
         private readonly ITokenRepository _tokenRepository;
@@ -180,7 +180,7 @@ namespace Cloud_storage_API.Controllers
                 if (request.pathId != null)
                 {
                     items = request.pathId.Split('\\');
-                    parrentId = Convert.ToInt32(items[items.Length - 1]);
+                    parrentId = Convert.ToInt32(items[items.Length - 2]);
                 }
 
                 items = request.file.FileName.Split('.');

@@ -23,7 +23,10 @@ namespace Cloud_storage_API.Repositories.Source
 
         public async Task<Users> GetByEmailAsync(string email)
         {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
+            if (_db != null) {
+                return await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
+            }
+            return null;
         }
 
         public async Task<Users> GetByIdAsync(int id)
